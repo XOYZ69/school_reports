@@ -1,44 +1,50 @@
-from functools import cache
-
-from modules.config import config_data
 import shutil
 import os
 import json
 import calendar
 import datetime
+import subprocess
 import time
 import sys
+from colorama import Fore
+from modules.config import config_data
+from tqdm import tqdm
 
 class Workspace:
-
-    path = config_data['config_path_export']
-    latex_command = ""
-    data = {}
-
-    weekdays = [
-        'Montag',
-        'Dienstag',
-        'Mittwoch',
-        'Donnerstag',
-        'Freitag',
-        'Samstag',
-        'Sonntag'
+    latex_compile_times = 2
+    latex_command       = [
+        'pdflatex',
+        '-interaction=nonstopmode',
+        '-output-directory=' + 'output',
+        'report.tex'
     ]
 
-    MODE = 0
+    start_time = time.time()
 
-    MODES = [
-        'NORMAL',
-        'BUILD',
-        'LIST-MISSING'
-    ]
+    def __init__(self, args):
+        self.path = config_data['config_path_export']
+        self.data = {}
+        self.weekdays = [
+            'Montag',
+            'Dienstag',
+            'Mittwoch',
+            'Donnerstag',
+            'Freitag',
+            'Samstag',
+            'Sonntag'
+        ]
+        self.MODE = 0
+        self.MODES = [
+            'normal',
+            'build',
+            'list-missing'
+        ]
 
-    def __init__(self, args) -> None:
         calendar.setfirstweekday(0)
 
         if len(args) > 1:
-            if args[1] in self.MODES:
-                self.MODE = self.MODES.index(args[1])
+            if args[1].lower() in self.MODES:
+                self.MODE = self.MODES.index(args[1].lower())
             else:
                 try:
                     self.MODE = int(args[1])
@@ -54,8 +60,6 @@ class Workspace:
         except Exception:
             pass
 
-        self.latex_command = 'pdflatex -interaction nonstopmode -output-directory=output report.tex'
-        
         shutil.copytree('latex', self.path, dirs_exist_ok=True)
 
         # Title page variables
@@ -86,7 +90,7 @@ class Workspace:
                 elif self.data[week][date] == ['Allgemein']:
                     print('###', date, 'Be more specific')
         
-        if self.MODES[self.MODE] == 'LIST-MISSING':
+        if self.MODES[self.MODE] == 'list-missing':
             sys.exit()
 
     def fill(self, text, length, fill, before=False):
@@ -250,13 +254,48 @@ class Workspace:
                 content.write(line + '\n')
 
     def build(self):
-        if not self.MODES[self.MODE] == 'BUILD':
-            print('Please specifiy "BUILD" as a parameterif you want to build')
+        if self.MODES[self.MODE] != 'build':
+            print('Please specify "BUILD" as a parameter if you want to build')
             return None
         
-        os.chdir(self.path)
-        os.system(self.latex_command)
-        os.system(self.latex_command)
+        self.compile_latex()
+        if os.path.exists(config_data['config_path_export'] + '/output/report.pdf'):
+            self.copy_with_progress(config_data['config_path_export'] + '/output/report.pdf', 'Wochenberichte.pdf')
+            self.log('Finished in {sec}s'.format(sec = round(time.time() - self.start_time, 2)))
+        else:
+            self.log('Failed in {sec}s'.format(sec = round(time.time() - self.start_time, 2)), True)
+
+    def compile_latex(self):
+        for i in tqdm(range(self.latex_compile_times), desc=time.ctime() + ' Compiling LaTeX Document'):
+            os.chdir(config_data['config_path_export'])
+            process = subprocess.Popen(self.latex_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            os.chdir('..')
+            # wait for the process to finish
+            stdout, stderr = process.communicate()
+            open('latex.log', 'wb').write(stdout)
+
+    def copy_with_progress(self, src, dst, chunk_size=1024):
+        # Get the size of the source file
+        total_size = os.path.getsize(src)
+    
+        progress_bar = tqdm(
+            desc        = time.ctime() + ' Copying [{src}]'.format(src = src),
+            total       = total_size,
+            unit        = 'B',
+            unit_scale  = True,
+            unit_divisor=1024)
+    
+        with open(src, 'rb') as fsrc:
+            with open(dst, 'wb') as fdst:
+                while True:
+                    # Read data in chunks
+                    data = fsrc.read(chunk_size)
+                    if not data:
+                        break
+                    fdst.write(data)
+                    progress_bar.update(len(data))
+    
+        progress_bar.close()
     
     def today(self):
         gm = time.gmtime()
@@ -276,4 +315,9 @@ class Workspace:
         color_text = split_text[1].split('>')
 
         return split_text[0] + '\\textcolor{' + color_text[0] + '}{' + color_text[1][:-1] + '}'
-
+    
+    def log(self, text, err=False):
+        if err:
+            print(Fore.RED + time.ctime(), text + Fore.RESET)
+        else:
+            print(Fore.CYAN + time.ctime(), text + Fore.RESET)
