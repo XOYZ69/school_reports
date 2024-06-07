@@ -1,3 +1,5 @@
 reports.json
 *.pyc
 WEEKLY_REVIEWS_*
+*.log
+*.pdf
