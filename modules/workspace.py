@@ -7,10 +7,15 @@ import subprocess
 import time
 import sys
 import logging
+import re
+
 from colorama import Fore
-from modules.config import config_data
 from tqdm import tqdm
 from pathlib import Path
+
+from modules.config.config_handler import setting_load
+from modules.format.console_style import kiroku
+from modules.error_handling import Error
 
 class Workspace:
     latex_compile_times = 2
@@ -24,7 +29,9 @@ class Workspace:
     start_time = time.time()
 
     def __init__(self, args):
-        self.path = Path(config_data['config_path_export'])
+        self.path = Path(setting_load('path_export', 'export'))
+        kiroku(self.path.name)
+        self.path.mkdir(parents=True, exist_ok=True)
         self.data = {}
         self.weekdays = [
             'Montag',
@@ -61,24 +68,32 @@ class Workspace:
             shutil.rmtree(self.path)
         except Exception:
             pass
-
-        shutil.copytree('latex', self.path, dirs_exist_ok=True)
+        
+        kiroku(self.path.name)
+        shutil.copytree(setting_load('path_source', 'export') + '/' + setting_load('report_version', 'export'), self.path, dirs_exist_ok=True)
 
         # Title page variables
         report_path = self.path / 'report.tex'
         report_content = report_path.read_text(encoding='utf-8').splitlines()
 
+        pattern = r'\$.*?\$'
+
         for i in range(len(report_content)):
-            for key in config_data:
-                to_replace = '$' + key.split('config_')[1] + '$'
-                if to_replace in report_content[i]:
-                    logging.info(f'Replacing {to_replace} with {config_data[key]}')
-                    report_content[i] = report_content[i].replace(to_replace, config_data[key])
+            matches = re.findall(pattern, report_content[i])
+            for to_replace in matches:
+                cache = setting_load(to_replace.replace('$', ''))
+
+                if Error().is_error(cache):
+                    kiroku(cache.get_error_message(), 'ERR')
+                    cache.print_traceback()
+                    continue
+                logging.info(f'Replacing {to_replace} with {cache}')
+                report_content[i] = report_content[i].replace(to_replace, cache)
 
         report_path.write_text('\n'.join(report_content), encoding='utf-8')
 
     def load_data(self):
-        self.data = json.loads(Path(config_data['config_path_report_json']).read_text(encoding='utf-8'))
+        self.data = json.loads(Path(setting_load('path_report_json', 'export')).read_text(encoding='utf-8'))
 
         for week in self.data:
             if len(self.data[week]) < 5:
@@ -120,9 +135,9 @@ class Workspace:
             lines.append('\\begin{tabularx}{\\textwidth}{p{10cm} l}')
             lines.append('Wochenbericht Nr.\\dotfill : & ' + str(count) + '\\\\')
             lines.append('Ausbildungsjahr\\dotfill : & ' + date_range.split('.')[-1] + '\\\\')
-            lines.append('Auszubildender \\dotfill : & ' + config_data['config_name_auszubildender'] + ' \\\\')
-            lines.append('Ausbilder \\dotfill : & ' + config_data['config_name_ausbilder'] + ' \\\\')
-            lines.append('Tägliche Arbeitszeit \\dotfill : & ' + config_data['config_recurring_worktime'] + ' \\\\')
+            lines.append('Auszubildender \\dotfill : & ' + setting_load('name_auszubildender') + ' \\\\')
+            lines.append('Ausbilder \\dotfill : & ' + setting_load('name_ausbilder') + ' \\\\')
+            lines.append('Tägliche Arbeitszeit \\dotfill : & ' + setting_load('recurring_worktime') + ' \\\\')
             lines.append('Druckdatum \\dotfill : & ' + self.today())
             lines.append('\\end{tabularx}')
 
@@ -138,9 +153,9 @@ class Workspace:
 
                 lines.append('\\begin{itemize}')
                 list_table_style = '{p{12cm}}'
-                lines.append('\\setlength\\itemsep{' + config_data['config_lists_spacing'] + '}')
+                lines.append('\\setlength\\itemsep{' + setting_load('lists_spacing', 'style') + '}')
 
-                if config_data['config_group_lists']:
+                if setting_load('group_lists', 'style', 'bool'):
                     list_table_style = '{| p{12cm}}'
 
                 school_items = []
@@ -155,7 +170,7 @@ class Workspace:
 
                     if item.startswith('$s'):
                         school_items.append(item[3:] if item[2] == ' ' else item[2:])
-                    elif item.startswith('$') and 'config_shortcut_' + item[1:2] in config_data:
+                    elif item.startswith('$') and setting_load('shortcut_' + item[1:2], 'style'):
                         shortcuts.setdefault(item[1:2], []).append(item[3:] if item[2] == ' ' else item[2:])
                     else:
                         if '::' in item:
@@ -174,7 +189,7 @@ class Workspace:
                         else:
                             lines.append('\\item ' + item)
 
-                school_mode = config_data['config_school_mode']
+                school_mode = setting_load('school_mode', 'shortcut')
 
                 if school_mode == 0 and school_items:
                     lines.append('\\item \\textbf{Berufsschule}')
@@ -192,7 +207,7 @@ class Workspace:
 
                 if shortcuts:
                     for shot, items in shortcuts.items():
-                        lines.append('\\item \\textbf{' + config_data['config_shortcut_' + shot] + '}')
+                        lines.append('\\item \\textbf{' + setting_load('shortcut_' + shot, 'shortcut') + '}')
                         lines.append('\\begin{itemize}')
                         for item in items:
                             if '<color:' in item:
@@ -206,7 +221,7 @@ class Workspace:
             lines.append('\\begin{tabularx}{\\textwidth}{p{5cm} p{5cm} X}')
             lines.append('\\hrulefill & \\hrulefill &  \\\\')
             lines.append('Auszubildender & Ausbilder & \\hfill \\\\')
-            lines.append(config_data['config_name_auszubildender'] + ' & ' + config_data['config_name_ausbilder'] + ' & \\\\')
+            lines.append(setting_load('name_auszubildender') + ' & ' + setting_load('name_ausbilder') + ' & \\\\')
             lines.append('\\end{tabularx}')
 
         with open(self.path / 'content.tex', 'a', encoding='utf-8') as content:
