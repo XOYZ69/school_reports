@@ -8,9 +8,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-g', '--gui', required=False, action='store_true', help='show a gui window for editing the reports')
 args = parser.parse_args()
 
-if args.gui:
-    run_gui()
-else:
+def main():
+    print('Printing all available reports')
+    
     # Check for reports file
     if not os.path.exists('reports.json'): 
         print(os.listdir())
@@ -25,3 +25,9 @@ else:
 
     # Print Reports
     reports.build()
+
+if args.gui:
+    run_gui()
+else:
+    if __name__ == "__main__":
+        main()

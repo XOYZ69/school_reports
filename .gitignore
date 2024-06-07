@@ -2,3 +2,5 @@ reports.json
 *.pyc
 WEEKLY_REVIEWS_*
 venv
+*.log
+*.pdf
