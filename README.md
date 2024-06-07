@@ -5,11 +5,12 @@
 </p>
 
 ---
+<img src="https://img.shields.io/github/v/release/XOYZ69/school_reports.svg?sort=semver">
 
 **school reports** is a simple way to create, store and customize your reports.
 
 ## Disclaimer
-  - Every student is responsible for their reports. No developer takes any blame if your reports do not fulfill the requirements for your school or institute you may take full responsibilty for this.
+  - Every student is responsible for their reports. No developer will take any blame if your reports do not fulfill the requirements of your school or institute.
   - If you wish to change something or wish for a feature, please create a new issue [here](https://github.com/XOYZ69/school_reports/issues/new).
   - On every pull your files could be changed. So if you want to work with the newest build please backup your `modules/config.py` and `reports.json` since school reports currently does not offer automatic backups.
 
@@ -25,7 +26,7 @@ Python can be installed through the provided installer or package on theri [down
 
 ### LaTeX
 
-If you have installed LaTeX please make sure the terminal command `pdflatex` is working correctly since this is the building command used for the reports.
+If you encounter problems building with your LaTeX installation please make sure to check for any updates and that `pdflatex` is in your path and accesible since this is the building command used for the reports.
 
 ## Prepare
 
