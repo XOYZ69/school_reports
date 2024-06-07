@@ -1,10 +1,16 @@
 import os
 import sys
+import argparse
 from modules.workspace import Workspace
+from modules.gui import run_gui
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-g', '--gui', required=False, action='store_true', help='show a gui window for editing the reports')
+args = parser.parse_args()
 
 def main():
     print('Printing all available reports')
-
+    
     # Check for reports file
     if not os.path.exists('reports.json'): 
         print(os.listdir())
@@ -20,5 +26,8 @@ def main():
     # Print Reports
     reports.build()
 
-if __name__ == "__main__":
-    main()
+if args.gui:
+    run_gui()
+else:
+    if __name__ == "__main__":
+        main()
