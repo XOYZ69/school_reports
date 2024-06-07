@@ -1,51 +1,47 @@
-# school_reports
+<img src="data/marketing/logo-header.png/">
 
-Dieses Projekt stellt eine einfache möglichkeit, professionelle und individuelle Wochenberichte für die IHK zu erstellen.
+<p align="right">
+  <a style="font-size: 7pt" href="https://www.flaticon.com/free-icons/school" title="school icons">School icons created by Freepik - Flaticon</a>
+</p>
+
+---
+<img src="https://img.shields.io/github/v/release/XOYZ69/school_reports.svg?sort=semver">
+
+**school reports** is a simple way to create, store and customize your reports.
 
 ## Disclaimer
-
-* Jeder ist für den Inhalt, die Formatierung und Abgabe der Berichte selbst verantwortlich
-* Wenn Änderungen gewünscht sind oder Bugs auftreten einen Git Issue anlegen!
-* Bei jedem pull wird report.tex und config.py überschrieben. Bedenkt das!
+  - Every student is responsible for their reports. No developer will take any blame if your reports do not fulfill the requirements of your school or institute.
+  - If you wish to change something or wish for a feature, please create a new issue [here](https://github.com/XOYZ69/school_reports/issues/new).
+  - On every pull your files could be changed. So if you want to work with the newest build please backup your `modules/config.py` and `reports.json` since school reports currently does not offer automatic backups.
 
 ## Requirements
 
-Dieses Projekt benötigt Python und LaTeX um vernünfig zu laufen.
+This project does need [Python](https://www.python.org/) and [LaTeX](https://www.latex-project.org/) to work corectly.
 
-* Python 
-  * *Beim installieren von Python sollte das "Path-Limit" entfernt werden. Ist im normalfall eine checkbox beim Installationsclient.*
-  * Python kann man von der offiziellen Seite herunterladen: <https://www.python.org/downloads/>
-  * Das Projekt wurde in Python 3.9.2 entwickelt und bietet somit keinen offiziellen support für ältere Versionen
-* LaTeX 
-  * LaTeX zu installieren klingt immer schwierig ist es aber nicht.
-  * Zunächst besucht man die Seite <https://miktex.org/download>
-  * Hier lädt man sich die Version für sein Betriebssystem herunter. Hierbei lieber den installer als die portable edition nutzen.
-  * Beim Installieren sollten folgende Einstellungen beachtet werden: 
-    * Preffered paper: <span style="color:red">A4</span>
-    * Install missing packages on-the-fly: <span style="color:red">Yes</span> 
-      * Diese Option führt dazu, dass man nicht jedes mal bestätigen muss wenn bestimmte Packages fehlen. Später beim ausführen merkt man wie viele eigentlich installiert werden müssen für dieses Template.
-  * Danach kann man MikTeX ganz einfach installieren.
-  * Anschließend sollte man einmal MikTeX öffnen um nach updates zu suchen (Der erste Start gibt dies auch meist als Fehlermeldung aus.)
-  * In dem Reiter "Updates" kann man dann einfach alle verfügbaren updates installieren. So hat man immer sicher die neuste Version.
+<a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" alt="Python"></a>
+<a href="https://www.latex-project.org/"><img src="https://skillicons.dev/icons?i=latex" alt="LaTeX"></a>
 
-## Vorbereitung
+### Python
+Python can be installed through the provided installer or package on theri [download page](https://www.python.org/downloads/).
 
-* Zunächst braucht man eine "reports.json"-file 
-  * In zukünftigen Updates kann man den Speicherort dynamisch angeben. Aktuell muss diese im main directory liegen
-  * In dem repository liegt eine Beispiel Datei um den Aufba zu erklären. Bei weiteren Fragen den Source code lesen oder an KP wenden.
-* Überprüfen ob alle Tools aus den *Requirements* installiert sind.
-* Danach die *setup.py* ausführen und einige Zeit warten.
-* Die Ausgabe befindet sich in dem Ordner "report_output\_\*"
-* Daten müssen in config.py bzw. reports/report.tex angepasst werden.
+### LaTeX
 
-## Informationen & Tips
+If you encounter problems building with your LaTeX installation please make sure to check for any updates and that `pdflatex` is in your path and accesible since this is the building command used for the reports.
 
-* Wenn Zeichen wie z.B. '&' nicht richtig angezeigt werden, liegt das Problem meist an LaTeX selber. Ändert man '&' zu '\\\\&' wird dieses Problem behoben. 
-  * Dies gilt auch z.B. für ["]
-  * Da json hier als Format genutzt wird muss vor anführungszeichen ein Backslash [\\].
-  * ["] -> [\\"]
-* Einträge die mit "$s " markiert werden gelten als Berufsschuleinträge und werden deshalb anders im Bericht angezeigt
-* Der Marker "::" trennt einen Eintrag und macht den ersten Teil fettgedruckt und ersetzt "::" mit " - "
-* Mit Hilfe von folgender Notation kann man farben nutzen 
-  * \<color:red\>Text\<color:end\>
-* In config.py befinden sich shortcuts die man nutzen kann um spezeille Events zu definieren
+## Prepare
+
+  1. Firtly make sure you've installed all requirements.
+  2. After that you need a `reports.json` file. This file is your base file for all your reports and lies in the main directory of the software if you did not change the config.
+  3. With that said please review the file `config.py` in `modules/config.py` and change the respective values to your needs.
+  4. If everything is working correctly try to run `python setup.py BUILD` for the console variant or `python setup.py --gui` for the GUI variant.
+  5. After a successful build there should be a `.pdf` file in your main directory.
+
+## Information & Tips
+
+  - If there are any characters which are not displayed correctly it could be due to incorrect backend handling. You can try to add backslashes before it.
+    - '&' -> '\\\\&'
+    - You need two backslashes because of the way the software works behind the scenes.
+  - Any entries starting the line with '$s' (you can replace 's' with x 'config_shortcut_x' which can be defined in the config.)
+  - Using '::' will replace theese caharacters with ' - ' and make the text before it bold.
+  - To use color you can use the following notation
+    - \<color:red\>Text\<color:end\>
