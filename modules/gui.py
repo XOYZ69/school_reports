@@ -36,7 +36,7 @@ def save_data(filepath, data):
         json.dump(sorted_data, file, indent=4)
 
 def save_to_txt(data):
-    with open("Tasks.txt", "w") as txt_file:
+    with open("Tasks.txt", "w", encoding='utf-8') as txt_file:
         for week_key in sorted(data.keys(), key=lambda x: datetime.datetime.strptime(x.split(' - ')[0], "%d.%m.%Y")):
             week_data = data[week_key]
             for date_key in sorted(week_data.keys(), key=lambda x: datetime.datetime.strptime(x, "%d.%m.%Y")):
@@ -201,10 +201,10 @@ class ReportApp:
         keyboard.add_hotkey("ctrl+s", on_ctrl_s)
         threading.Thread(target=keyboard.wait, args=("ctrl+s",), daemon=True).start()
 
-def main():
+def run_gui():
     root = tk.Tk()
     app = ReportApp(root, 'reports.json')
     root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    run_gui()

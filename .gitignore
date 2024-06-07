@@ -1,3 +1,4 @@
 reports.json
 *.pyc
 WEEKLY_REVIEWS_*
+venv
