@@ -76,7 +76,7 @@ class Error:
         
         for trace in range(len(self.traceback)):
             print(
-                fit(f'Trace: {fit(trace, 3, ' ', False)}', 26, ' ', False) + ' [TRC]',
+                fit(f"Trace: {fit(trace, 3, ' ', False)}", 26, ' ', False) + ' [TRC]',
                 self.traceback[trace]['function'],
                 self.traceback[trace]['params'] if self.traceback[trace]['params'] is not None else ''
 

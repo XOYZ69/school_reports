@@ -28,7 +28,7 @@ class Workspace:
         
         # Check for reports file
         if not os.path.exists(setting_load('path_report_json', 'export')): 
-            kiroku(f'The report file \'{setting_load('path_report_json', 'export')}\' was not found.', 'ERR')
+            kiroku(f"The report file \'{setting_load('path_report_json', 'export')}\' was not found.", 'ERR')
             sys.exit()
         
         self.path = Path(setting_load('path_export', 'export'))
@@ -216,7 +216,7 @@ class Workspace:
         output_pdf = self.path / 'output' / 'report.pdf'
         if output_pdf.exists():
             copy_with_progress(output_pdf, 'Wochenberichte.pdf')
-            kiroku(f'Exported PDF contains {format_bytes(os.path.getsize('Wochenberichte.pdf'), rounding=2)}', 'INF')
+            kiroku(f"Exported PDF contains {format_bytes(os.path.getsize('Wochenberichte.pdf'), rounding=2)}", 'INF')
             kiroku(f'Finished in {round(time.time() - self.start_time, 2)}s', 'INF')
         else:
             kiroku(f'Failed in {round(time.time() - self.start_time, 2)}s', 'ERR')

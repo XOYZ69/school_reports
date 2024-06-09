@@ -5,7 +5,7 @@
 
 # user files
 reports.json
-venv
+venv*
 
 # export
 output
