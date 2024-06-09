@@ -1,11 +1,11 @@
-name: Unit Test
+name: Full Build Test
 
 on:
-  push:
-    branches: [ "**" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build:
+  full-build:
 
     runs-on: ubuntu-latest
     strategy:
@@ -24,9 +24,14 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Install LaTeX
+      run: sudo apt-get update && sudo apt-get install -y texlive-full
     - name: Run Configuration PyTests
       run: |
         python -m pytest -rA tests/test_configuration.py
     - name: Run String PyTests
       run: |
         python -m pytest -rA tests/test_string.py
+    - name: Run Workspace PyTests
+      run: |
+        python -m pytest -rA tests/test_workspace.py
