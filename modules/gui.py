@@ -99,7 +99,7 @@ class ReportApp:
         self.display_week_list()
 
     def build_weekly_report(self):
-        os.system("python setup.py BUILD")
+        os.system("python setup.py --build")
         os.system('"' + os.path.abspath(os.getcwd()) + "/" + setting_load("path_export", "export") + r"\output\report.pdf" + '"')
 
     def submit_entry(self):

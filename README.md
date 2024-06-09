@@ -12,7 +12,7 @@
 ## Disclaimer
   - Every student is responsible for their reports. No developer will take any blame if your reports do not fulfill the requirements of your school or institute.
   - If you wish to change something or wish for a feature, please create a new issue [here](https://github.com/XOYZ69/school_reports/issues/new).
-  - On every pull your files could be changed. So if you want to work with the newest build please backup your `modules/config.py` and `reports.json` since school reports currently does not offer automatic backups.
+  - On every pull your files could be changed. So if you want to work with the newest build please backup your `data/config` folder and `reports.json` since school reports currently does not offer automatic backups.
 
 ## Requirements
 
@@ -32,8 +32,8 @@ If you encounter problems building with your LaTeX installation please make sure
 
   1. Firtly make sure you've installed all requirements.
   2. After that you need a `reports.json` file. This file is your base file for all your reports and lies in the main directory of the software if you did not change the config.
-  3. With that said please review the file `config.py` in `modules/config.py` and change the respective values to your needs.
-  4. If everything is working correctly try to run `python setup.py BUILD` for the console variant or `python setup.py --gui` for the GUI variant.
+  3. With that said please review the file `report_data.config` in `data/config` and change the respective values to your needs.
+  4. If everything is working correctly try to run `python setup.py --build` for the console variant or `python setup.py --gui` for the GUI variant.
   5. After a successful build there should be a `.pdf` file in your main directory.
 
 ## Information & Tips

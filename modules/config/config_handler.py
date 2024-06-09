@@ -16,7 +16,7 @@ def setting_load(setting_to_get, setting_type='report_data', return_type='str'):
     '''
 
     if setting_to_get == '':
-        return Error('0x03012', 'setting_load')
+        return Error('0x03012', 'setting_load', (setting_to_get, setting_type, return_type))
 
     settings_file = settings_find_location(setting_type)
 
@@ -42,7 +42,7 @@ def setting_load(setting_to_get, setting_type='report_data', return_type='str'):
                         setting_value.append(current_line[1].replace('\n', ''))
 
     if setting_value == '':
-        return Error('0x03011', 'setting_load')
+        return Error('0x03011', 'setting_load', (setting_to_get, setting_type, return_type))
     elif isinstance(setting_value, list):
         return setting_value
     else:
@@ -60,7 +60,7 @@ def setting_load(setting_to_get, setting_type='report_data', return_type='str'):
         elif return_type == 'float':
             return float(setting_value)
         else:
-            return Error('0x03013', 'setting_load')
+            return Error('0x03013', 'setting_load', (setting_to_get, setting_type, return_type))
 
 def setting_change(setting_to_change, new_value, setting_type='settings'):
     settings_file = settings_find_location(setting_type)

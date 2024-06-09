@@ -6,19 +6,62 @@ from random import random, randint
 from colorama import Fore, Back
 
 from modules.config.config_handler import setting_load
-from modules.format.io import cutoff_filename
+from modules.format.string import cutoff_filename
 
-def kiroku(information, tag='', print_output_path=False):
+kiroku_colors = {
+    'OTH': {
+        '_desc':    'Default colors or other',
+        'strtime':  Fore.WHITE,
+        'epotime':  Fore.WHITE,
+        'tag':      Fore.WHITE,
+        'body':     Fore.WHITE
+    },
+    'CPY': {
+        '_desc':    'Copy',
+        'strtime':  Fore.CYAN,
+        'epotime':  Fore.CYAN,
+        'tag':      Fore.BLUE,
+        'body':     Fore.BLUE
+    },
+    'INF': {
+        '_desc':    'Information',
+        'strtime':  Fore.MAGENTA,
+        'epotime':  Fore.MAGENTA,
+        'tag':      Fore.MAGENTA,
+        'body':     Fore.MAGENTA
+    },
+    'WRN': {
+        '_desc':    'Warning',
+        'strtime':  Fore.YELLOW,
+        'epotime':  Fore.YELLOW,
+        'tag':      Fore.YELLOW,
+        'body':     Fore.YELLOW
+    },
+    'ERR': {
+        '_desc':    'Error',
+        'strtime':  Fore.RED,
+        'epotime':  Fore.RED,
+        'tag':      Fore.RED,
+        'body':     Fore.RED
+    },
+    'SCC': {
+        '_desc':    'Success',
+        'strtime':  Fore.GREEN,
+        'epotime':  Fore.GREEN,
+        'tag':      Fore.GREEN,
+        'body':     Fore.GREEN
+    }
+}
+
+def kiroku(information, tag='', print_output_path=False, print_to_console = True):
     '''
     Log different events while coloring the terminal, categorizing and saving the logs
     '''
 
-    colors={
-        'strtime': Fore.WHITE,
-        'epotime': Fore.WHITE,
-        'tag': Fore.YELLOW,
-        'body': Fore.CYAN
-    }
+    if tag not in kiroku_colors:
+        tag = 'OTH'
+    
+    colors = kiroku_colors[tag]
 
     console_obj = {
         'strtime': time.ctime(),
@@ -26,29 +69,6 @@ def kiroku(information, tag='', print_output_path=False):
         'tag': tag,
         'body': information
     }
-    
-    # OTH = Other
-    if console_obj['tag'] == '':
-        console_obj['tag'] = 'OTH'
-    # WRN = Warning
-    elif console_obj['tag'] == 'WRN':
-        colors['strtime']   = Fore.YELLOW
-        colors['epotime']   = Fore.YELLOW
-        colors['tag']   = Fore.YELLOW
-        colors['body']  = Fore.YELLOW
-    # INF = Information
-    elif console_obj['tag'] == 'INF':
-        colors['strtime']   = Fore.WHITE
-        colors['epotime']   = Fore.WHITE
-        colors['tag']   = Fore.YELLOW
-        colors['body']  = Fore.CYAN
-    # ERR = Error
-    elif console_obj['tag'] == 'ERR':
-        colors['strtime']   = Fore.RED
-        colors['epotime']   = Fore.RED
-        colors['tag']   = Fore.RED
-        colors['body']  = Fore.LIGHTRED_EX
-
     console_obj['tag'] = console_obj['tag']
 
     if isinstance(information, str):
@@ -61,8 +81,7 @@ def kiroku(information, tag='', print_output_path=False):
 
         console_obj['body'] = cache
     else:
-        # Error Handling
-        return 'unsupported data type for information'
+        console_obj['body'] = str(information)
 
     if setting_load('style_function_kiroku_export_to_file', return_type='boolean', setting_type='style'):
         log_path = setting_load('style_function_kiroku_export_file_path', setting_type='style')
@@ -96,7 +115,8 @@ def kiroku(information, tag='', print_output_path=False):
     cache_kiroku += colors['tag'] + '[' + console_obj['tag'] + '] '
     cache_kiroku += colors['body'] + console_obj['body'] + Fore.RESET + Back.RESET
 
-    print(cache_kiroku)
+    if print_to_console:
+        print(cache_kiroku)
 
     return cache_kiroku
 

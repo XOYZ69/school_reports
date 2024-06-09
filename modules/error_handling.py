@@ -39,7 +39,7 @@ class Error:
 
     traceback = []
 
-    def __init__(self, errorcode = None, function_name = None) -> None:
+    def __init__(self, errorcode = None, function_name = None, params = None) -> None:
         if errorcode is None:
             return
         
@@ -52,6 +52,7 @@ class Error:
         
             self.add_traceback({
                 'function':     function_name,
+                'params':       params,
                 'error_code':   errorcode,
                 'error_msg':    self.get_error_message()
             })
@@ -75,8 +76,10 @@ class Error:
         
         for trace in range(len(self.traceback)):
             print(
-                fit(f'Trace: {fit(trace, 3, ' ', False)}', 26, ' ', False) +
-                ' [TRC]', self.traceback[trace]['function']
+                fit(f'Trace: {fit(trace, 3, ' ', False)}', 26, ' ', False) + ' [TRC]',
+                self.traceback[trace]['function'],
+                self.traceback[trace]['params'] if self.traceback[trace]['params'] is not None else ''
+
             )
     
     def is_error(self, obj):

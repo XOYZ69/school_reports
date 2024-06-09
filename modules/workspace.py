@@ -6,16 +6,16 @@ import datetime
 import subprocess
 import time
 import sys
-import logging
 import re
 
-from colorama import Fore
 from tqdm import tqdm
 from pathlib import Path
 
-from modules.config.config_handler import setting_load
-from modules.format.console_style import kiroku
 from modules.error_handling import Error
+from modules.io import copy_with_progress
+from modules.format.console_style import kiroku
+from modules.config.config_handler import setting_load
+from modules.format.string import fit, colorize, format_bytes, escape_latex_special_chars, today
 
 class Workspace:
     latex_compile_times = 2
@@ -28,11 +28,20 @@ class Workspace:
 
     start_time = time.time()
 
-    def __init__(self, args):
+    def __init__(self, args=()):
+        self.args = args
+        
+        # Check for reports file
+        if not os.path.exists(setting_load('path_report_json', 'export')): 
+            kiroku(f'The report file \'{setting_load('path_report_json', 'export')}\' was not found.', 'ERR')
+            sys.exit()
+        
         self.path = Path(setting_load('path_export', 'export'))
-        kiroku(self.path.name)
         self.path.mkdir(parents=True, exist_ok=True)
         self.data = {}
+
+        # calendar settings
+        calendar.setfirstweekday(0)
         self.weekdays = [
             'Montag',
             'Dienstag',
@@ -42,23 +51,6 @@ class Workspace:
             'Samstag',
             'Sonntag'
         ]
-        self.MODE = 0
-        self.MODES = [
-            'normal',
-            'build',
-            'list-missing'
-        ]
-
-        calendar.setfirstweekday(0)
-
-        if len(args) > 1:
-            if args[1].lower() in self.MODES:
-                self.MODE = self.MODES.index(args[1].lower())
-            else:
-                try:
-                    self.MODE = int(args[1])
-                except ValueError:
-                    pass
 
     def prepare(self, path=None):
         if path is not None:
@@ -69,14 +61,19 @@ class Workspace:
         except Exception:
             pass
         
-        kiroku(self.path.name)
-        shutil.copytree(setting_load('path_source', 'export') + '/' + setting_load('report_version', 'export'), self.path, dirs_exist_ok=True)
+        cache_source = setting_load('path_source', 'export')
+        cache_report = setting_load('report_version', 'export')
+
+        kiroku(f'Copy \'{cache_source}/{cache_report}\' to \'{self.path}\'', 'CPY')
+        shutil.copytree(cache_source + '/' + cache_report, self.path, dirs_exist_ok=True)
 
         # Title page variables
         report_path = self.path / 'report.tex'
+        kiroku(f'Reading {report_path.name}')
         report_content = report_path.read_text(encoding='utf-8').splitlines()
 
         pattern = r'\$.*?\$'
+        replaced_items = 0
 
         for i in range(len(report_content)):
             matches = re.findall(pattern, report_content[i])
@@ -87,9 +84,12 @@ class Workspace:
                     kiroku(cache.get_error_message(), 'ERR')
                     cache.print_traceback()
                     continue
-                logging.info(f'Replacing {to_replace} with {cache}')
+                kiroku(f'{to_replace} -> {cache}', 'DTA')
                 report_content[i] = report_content[i].replace(to_replace, cache)
+                replaced_items += 1
+        kiroku(f'Replaced {replaced_items} variables in \'{report_path}\'', 'INF')
 
+        kiroku(f'Writing {format_bytes(sum(len(i) for i in report_content), 2)} to {report_path.name}')
         report_path.write_text('\n'.join(report_content), encoding='utf-8')
 
     def load_data(self):
@@ -97,31 +97,14 @@ class Workspace:
 
         for week in self.data:
             if len(self.data[week]) < 5:
-                logging.warning(f'--- {week} Detected only {len(self.data[week])} days in this week. Please check')
+                kiroku(f'{week} Detected only {len(self.data[week])} days in this week. Please check', 'WRN')
             for date in self.data[week]:
                 if self.data[week][date] == []:
-                    logging.warning(f'{date} equals []')
+                    kiroku(f'{date} equals []', 'WRN')
                 elif self.data[week][date] == ['$s Berufsschule']:
-                    logging.warning(f'{date} School Content not defined.')
+                    kiroku(f'{date} School Content not defined.', 'WRN')
                 elif self.data[week][date] == ['Allgemein']:
-                    logging.warning(f'{date} Be more specific')
-
-        if self.MODES[self.MODE] == 'list-missing':
-            sys.exit()
-
-    def fill(self, text, length, fill, before=False):
-        c = str(text)
-        while len(c) < length:
-            c = fill + c if before else c + fill
-        return c
-
-    def escape_latex_special_chars(self, text):
-        latex_special_chars = {
-            '#': '\#',
-        }
-        for char, replacement in latex_special_chars.items():
-            text = text.replace(char, replacement)
-        return text
+                    kiroku(f'{date} Be more specific', 'WRN')
 
     def write_data(self):
         lines = []
@@ -138,7 +121,7 @@ class Workspace:
             lines.append('Auszubildender \\dotfill : & ' + setting_load('name_auszubildender') + ' \\\\')
             lines.append('Ausbilder \\dotfill : & ' + setting_load('name_ausbilder') + ' \\\\')
             lines.append('Tägliche Arbeitszeit \\dotfill : & ' + setting_load('recurring_worktime') + ' \\\\')
-            lines.append('Druckdatum \\dotfill : & ' + self.today())
+            lines.append('Druckdatum \\dotfill : & ' + today())
             lines.append('\\end{tabularx}')
 
             for myDate in self.data[date_range]:
@@ -148,7 +131,7 @@ class Workspace:
                 try:
                     lines.append('\\subsection{' + myDate + ' - ' + self.weekdays[newDate.weekday()] + '}')
                 except Exception as e:
-                    logging.error(f'Caught exception on {newDate} with weekday {newDate.weekday()} | Exception: {e}')
+                    kiroku(f'Caught exception on {newDate} with weekday {newDate.weekday()} | Exception: {e}', 'ERR')
                     sys.exit()
 
                 lines.append('\\begin{itemize}')
@@ -166,7 +149,7 @@ class Workspace:
                         continue
 
                     # Escape LaTeX special characters
-                    item = self.escape_latex_special_chars(item)
+                    item = escape_latex_special_chars(item)
 
                     if item.startswith('$s'):
                         school_items.append(item[3:] if item[2] == ' ' else item[2:])
@@ -211,7 +194,7 @@ class Workspace:
                         lines.append('\\begin{itemize}')
                         for item in items:
                             if '<color:' in item:
-                                item = self.colorize(item)
+                                item = colorize(item)
                             lines.append('\\item ' + item)
                         lines.append('\\end{itemize}')
 
@@ -224,62 +207,31 @@ class Workspace:
             lines.append(setting_load('name_auszubildender') + ' & ' + setting_load('name_ausbilder') + ' & \\\\')
             lines.append('\\end{tabularx}')
 
-        with open(self.path / 'content.tex', 'a', encoding='utf-8') as content:
-            content.write('\n'.join(lines) + '\n')
+        with open(self.path / 'content.tex', 'a', encoding='utf-8') as content_writer:
+            cache_content = '\n'.join(lines)
+            kiroku(f'Writing {format_bytes(len(cache_content))} to \'{self.path}/content.tex\'')
+            content_writer.write(cache_content + '\n')
 
 
     def build(self):
-        if self.MODES[self.MODE] != 'build':
-            logging.info('Please specify "BUILD" as a parameter if you want to build')
+        if not self.args.build:
+            kiroku('Please specify "BUILD" as a parameter if you want to build', 'INF')
             return
 
         self.compile_latex()
         output_pdf = self.path / 'output' / 'report.pdf'
         if output_pdf.exists():
-            self.copy_with_progress(output_pdf, 'Wochenberichte.pdf')
-            logging.info(f'Finished in {round(time.time() - self.start_time, 2)}s')
+            copy_with_progress(output_pdf, 'Wochenberichte.pdf')
+            kiroku(f'Exported PDF contains {format_bytes(os.path.getsize('Wochenberichte.pdf'), rounding=2)}', 'INF')
+            kiroku(f'Finished in {round(time.time() - self.start_time, 2)}s', 'INF')
         else:
-            logging.error(f'Failed in {round(time.time() - self.start_time, 2)}s')
+            kiroku(f'Failed in {round(time.time() - self.start_time, 2)}s', 'ERR')
 
     def compile_latex(self):
-        for _ in tqdm(range(self.latex_compile_times), desc=time.ctime() + ' Compiling LaTeX Document'):
+        kiroku(f'Using compiling command: {self.latex_command}', 'INF')
+        for _ in tqdm(range(self.latex_compile_times), desc=kiroku('Compiling LaTeX Document', 'INF', print_to_console=False)):
             os.chdir(self.path)
             process = subprocess.Popen(self.latex_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            os.chdir('..')
+            os.chdir('../../../')
             stdout, stderr = process.communicate()
             Path('latex.log').write_bytes(stdout)
-
-    def copy_with_progress(self, src, dst, chunk_size=1024):
-        total_size = os.path.getsize(src)
-        progress_bar = tqdm(
-            desc=time.ctime() + f' Copying [{src}]',
-            total=total_size,
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024
-        )
-
-        with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst:
-            while True:
-                data = fsrc.read(chunk_size)
-                if not data:
-                    break
-                fdst.write(data)
-                progress_bar.update(len(data))
-
-        progress_bar.close()
-
-    def today(self):
-        gm = time.gmtime()
-        return (self.fill(gm.tm_mday, 2, '0', True) + '.' +
-                self.fill(gm.tm_mon, 2, '0', True) + '.' +
-                self.fill(gm.tm_year, 2, '0', True) + ' - ' +
-                self.fill(gm.tm_hour, 2, '0', True) + ':' +
-                self.fill(gm.tm_min, 2, '0', True) + ':' +
-                self.fill(gm.tm_sec, 2, '0', True))
-
-    def colorize(self, text):
-        split_text = text.split('color:')
-        split_text[0] = split_text[0][:-1]
-        color_text = split_text[1].split('>')
-        return split_text[0] + '\\textcolor{' + color_text[0] + '}{' + color_text[1][:-1] + '}'

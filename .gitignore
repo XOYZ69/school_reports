@@ -8,7 +8,7 @@ reports.json
 venv
 
 # export
-WEEKLY_REVIEWS_*
+output
 
 # logs
 logs
