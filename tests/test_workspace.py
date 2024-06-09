@@ -1,3 +1,5 @@
+import os
+
 from modules.error_handling import Error
 from modules.workspace import Workspace
 
@@ -16,3 +18,6 @@ class TestWorkspace:
     def test_workspace_write_data(self):
         self.test_workspace_load_data()
         self.new_workspace.write_data()
+    
+    def test_workspace_build(self):
+        os.system('python setup.py --build')

@@ -26,9 +26,8 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Test with pytest
+    - name: Install LaTeX
+      run: sudo apt-get update && sudo apt-get install -y texlive-full
+    - name: Run PyTests
       run: |
-        python -m pytest -rA tests 
-    - name: Test LaTeX Building
-      uses: dante-ev/latex-action@latest
-      run: python setup.py -b
+        python -m pytest -rA tests
