@@ -26,7 +26,7 @@ def fit(content, length, fill='.', left_align=True):
     
     return cache_return
 
-def colorize(self, text):
+def colorize(text):
     '''
     Use the <color:x> formatting to colorize text inside the document
     '''
