@@ -207,7 +207,6 @@ class Workspace:
             kiroku(f'Writing {format_bytes(len(cache_content))} to \'{self.path}/content.tex\'')
             content_writer.write(cache_content + '\n')
 
-
     def build(self):
         if not self.args.build:
             kiroku('Please specify "BUILD" as a parameter if you want to build', 'INF')

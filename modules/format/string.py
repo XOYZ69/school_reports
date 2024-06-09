@@ -85,11 +85,11 @@ def cutoff_filename(path):
     return cache
 
 def today():
-    gm = time.gmtime()
-    return (fit(gm.tm_mday, 2, '0', True) + '.' +
-            fit(gm.tm_mon,  2, '0', True) + '.' +
-            fit(gm.tm_year, 2, '0', True)
+    gm = time.localtime()
+    return (fit(gm.tm_mday, 2, '0', False) + '.' +
+            fit(gm.tm_mon,  2, '0', False) + '.' +
+            fit(gm.tm_year, 2, '0', False)
             + ' - ' +
-            fit(gm.tm_hour, 2, '0', True) + ':' +
-            fit(gm.tm_min,  2, '0', True) + ':' +
-            fit(gm.tm_sec,  2, '0', True))
+            fit(gm.tm_hour, 2, '0', False) + ':' +
+            fit(gm.tm_min,  2, '0', False) + ':' +
+            fit(gm.tm_sec,  2, '0', False))
