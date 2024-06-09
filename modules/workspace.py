@@ -226,7 +226,7 @@ class Workspace:
         kiroku(f'Using compiling command: {self.latex_command}', 'INF')
         for _ in tqdm(range(self.latex_compile_times), desc=kiroku('Compiling LaTeX Document', 'INF', print_to_console=False)):
             os.chdir(self.path)
-            process = subprocess.Popen(self.latex_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(self.latex_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             os.chdir('../../../')
             stdout, stderr = process.communicate()
             Path('latex.log').write_bytes(stdout)
