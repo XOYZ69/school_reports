@@ -18,13 +18,8 @@ from modules.config.config_handler import setting_load
 from modules.format.string import fit, colorize, format_bytes, escape_latex_special_chars, today
 
 class Workspace:
-    latex_compile_times = 2
-    latex_command = [
-        'pdflatex',
-        '-interaction=nonstopmode',
-        '-output-directory=output',
-        'report.tex'
-    ]
+    latex_compile_times = setting_load('latex_compile_times', 'export', 'int')
+    latex_command = setting_load('latex_command', 'export')
 
     start_time = time.time()
 
