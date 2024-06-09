@@ -167,7 +167,7 @@ class Workspace:
                         else:
                             lines.append('\\item ' + item)
 
-                school_mode = setting_load('school_mode', 'shortcut')
+                school_mode = setting_load('school_mode', 'style', 'int')
 
                 if school_mode == 0 and school_items:
                     lines.append('\\item \\textbf{Berufsschule}')

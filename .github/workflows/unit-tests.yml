@@ -29,3 +29,7 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest -rA tests 
+    - name: Test LaTeX Building
+      uses: dante-ev/latex-action@latest
+      with:
+        entrypoint: python setup.py -b
