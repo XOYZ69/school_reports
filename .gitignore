@@ -1,6 +1,14 @@
-reports.json
+# File extenstions
 *.pyc
-WEEKLY_REVIEWS_*
-venv
 *.log
 *.pdf
+
+# user files
+reports.json
+venv*
+
+# export
+output
+
+# logs
+logs

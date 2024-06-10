@@ -6,7 +6,8 @@ from tkinter import messagebox, ttk
 import keyboard
 import threading
 import subprocess
-from modules.config import config_data
+
+from modules.config.config_handler import setting_load
 
 # Dark mode settings
 def set_dark_mode(root):
@@ -98,8 +99,8 @@ class ReportApp:
         self.display_week_list()
 
     def build_weekly_report(self):
-        os.system("python setup.py BUILD")
-        os.system('"' + os.path.abspath(os.getcwd()) + "/" + config_data["config_path_export"] + r"\output\report.pdf" + '"')
+        os.system("python setup.py --build")
+        os.system('"' + os.path.abspath(os.getcwd()) + "/" + setting_load("path_export", "export") + r"\output\report.pdf" + '"')
 
     def submit_entry(self):
         entry = self.entry_text.get("1.0", tk.END).strip()
