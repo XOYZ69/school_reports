@@ -73,13 +73,30 @@ class Workspace:
         for i in range(len(report_content)):
             matches = re.findall(pattern, report_content[i])
             for to_replace in matches:
-                cache = setting_load(to_replace.replace('$', ''))
+                if 'translation' in to_replace:
+                    cache = setting_load(to_replace.replace('$', ''), 'translation/' + self.args.lang)
 
-                if Error().is_error(cache):
-                    kiroku(cache.get_error_message(), 'ERR')
-                    cache.print_traceback()
-                    continue
-                kiroku(f'{to_replace} -> {cache}', 'DTA')
+                    # If the translation is not found search in the default translation
+                    if Error().is_error(cache) and self.args.lang != setting_load('translation_language_default', 'export'):
+                        cache = setting_load(to_replace.replace('$', ''), 'translation/' + setting_load('translation_language_default', 'export'))
+                    
+                    if Error().is_error(cache):
+                        kiroku(cache.get_error_message(), 'ERR')
+                        cache.print_traceback()
+                        continue
+                    
+                    kiroku(f'{to_replace} -> {cache}', 'TRS')
+
+                else:
+                    cache = setting_load(to_replace.replace('$', ''))
+
+                    if Error().is_error(cache):
+                        kiroku(cache.get_error_message(), 'ERR')
+                        cache.print_traceback()
+                        continue
+                    
+                    kiroku(f'{to_replace} -> {cache}', 'DTA')
+                    
                 report_content[i] = report_content[i].replace(to_replace, cache)
                 replaced_items += 1
         kiroku(f'Replaced {replaced_items} variables in \'{report_path}\'', 'INF')

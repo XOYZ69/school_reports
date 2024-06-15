@@ -26,7 +26,7 @@ def setting_load(setting_to_get, setting_type='report_data', return_type='str'):
 
     setting_value = ''
 
-    with open(settings_file, 'r') as cache_file:
+    with open(settings_file, 'r', encoding='utf-8') as cache_file:
         for line in cache_file.readlines():
             if line[0] != '#' and line != '' and ': ' in line:
                 current_line = line.split(': ')
@@ -72,7 +72,7 @@ def setting_change(setting_to_change, new_value, setting_type='settings'):
     loaded_settings = []
     found_index = -1
 
-    with open(settings_file, 'r') as cache_file:
+    with open(settings_file, 'r', encoding='utf-8') as cache_file:
         loaded_settings = cache_file.readlines()
 
     for line in range(len(loaded_settings)):
@@ -86,7 +86,7 @@ def setting_change(setting_to_change, new_value, setting_type='settings'):
         cache_setting = loaded_settings[found_index].split(': ')
         loaded_settings[found_index] = cache_setting[0] + ': ' + new_value + '\n'
 
-        with open(settings_file, 'w') as cache_file:
+        with open(settings_file, 'w', encoding='utf-8') as cache_file:
             cache_file.writelines(loaded_settings)
     else:
         return Error('0x03011', 'setting_change')
