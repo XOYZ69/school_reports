@@ -111,12 +111,8 @@ class Workspace:
             lines.append('\\hline')
 
             lines.append('\\begin{tabularx}{\\textwidth}{p{10cm} l}')
-            lines.append('Wochenbericht Nr.\\dotfill : & ' + str(count) + '\\\\')
             lines.append('Ausbildungsjahr\\dotfill : & ' + date_range.split('.')[-1] + '\\\\')
             lines.append('Auszubildender \\dotfill : & ' + setting_load('name_auszubildender') + ' \\\\')
-            lines.append('Ausbilder \\dotfill : & ' + setting_load('name_ausbilder') + ' \\\\')
-            lines.append('Tägliche Arbeitszeit \\dotfill : & ' + setting_load('recurring_worktime') + ' \\\\')
-            lines.append('Druckdatum \\dotfill : & ' + today())
             lines.append('\\end{tabularx}')
 
             for myDate in self.data[date_range]:
