@@ -1,5 +1,4 @@
 import os
-
 from modules.error_handling import Error
 
 def settings_find_location(setting_type):
@@ -11,10 +10,10 @@ def settings_find_location(setting_type):
 
 def setting_load(setting_to_get, setting_type='report_data', return_type='str'):
     '''
-    Load the designated settings file and return the stored value if the setting exists
-    Will return an Error Object if the file or value does not exist
+    Load the designated settings file and return the stored value if the setting exists.
+    Will return an Error Object if the file or value does not exist.
     '''
-
+    
     if setting_to_get == '':
         return Error('0x03012', 'setting_load', (setting_to_get, setting_type, return_type))
 
@@ -26,20 +25,21 @@ def setting_load(setting_to_get, setting_type='report_data', return_type='str'):
 
     setting_value = ''
 
-    with open(settings_file, 'r') as cache_file:
+    # Open file with UTF-8 encoding to handle special characters
+    with open(settings_file, 'r', encoding='utf-8') as cache_file:
         for line in cache_file.readlines():
-            if line[0] != '#' and line != '' and ': ' in line:
+            if line[0] != '#' and line.strip() != '' and ': ' in line:
                 current_line = line.split(': ')
                 current_line[0] = current_line[0].replace('.', '')
 
                 if current_line[0] == setting_to_get or ('*' in setting_to_get and setting_to_get.replace('*', '') in current_line[0]):
                     if setting_value == '':
-                        setting_value = current_line[1].replace('\n', '')
+                        setting_value = current_line[1].strip()
                     else:
                         if isinstance(setting_value, str):
                             setting_value = [setting_value]
 
-                        setting_value.append(current_line[1].replace('\n', ''))
+                        setting_value.append(current_line[1].strip())
 
     if setting_value == '':
         return Error('0x03011', 'setting_load', (setting_to_get, setting_type, return_type))
@@ -72,21 +72,24 @@ def setting_change(setting_to_change, new_value, setting_type='settings'):
     loaded_settings = []
     found_index = -1
 
-    with open(settings_file, 'r') as cache_file:
+    # Open file with UTF-8 encoding to handle special characters
+    with open(settings_file, 'r', encoding='utf-8') as cache_file:
         loaded_settings = cache_file.readlines()
 
     for line in range(len(loaded_settings)):
-        if loaded_settings[line][0] != '#' and loaded_settings[line] != '':
+        if loaded_settings[line][0] != '#' and loaded_settings[line].strip() != '':
             current_line = loaded_settings[line].split(': ')
 
             if current_line[0].replace('.', '') == setting_to_change:
                 found_index = line
                 break
+
     if found_index > -1:
         cache_setting = loaded_settings[found_index].split(': ')
         loaded_settings[found_index] = cache_setting[0] + ': ' + new_value + '\n'
 
-        with open(settings_file, 'w') as cache_file:
+        # Write file with UTF-8 encoding to ensure Umlaute are saved correctly
+        with open(settings_file, 'w', encoding='utf-8') as cache_file:
             cache_file.writelines(loaded_settings)
     else:
         return Error('0x03011', 'setting_change')
