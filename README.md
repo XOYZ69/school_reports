@@ -12,7 +12,8 @@
 ## Disclaimer
   - Every student is responsible for their reports. No developer will take any blame if your reports do not fulfill the requirements of your school or institute.
   - If you wish to change something or wish for a feature, please create a new issue [here](https://github.com/XOYZ69/school_reports/issues/new).
-  - On every pull your files could be changed. So if you want to work with the newest build please backup your `data/config` folder and `reports.json` since school reports currently does not offer automatic backups.
+  - Your personal report data is stored in `data/reports.json` and is now local-only (not tracked by git).
+  - The repository ships with `data/reports.example.json` as a starter template.
 
 ## Requirements
 
@@ -31,10 +32,11 @@ If you encounter problems building with your LaTeX installation please make sure
 ## Prepare
 
   1. Firtly make sure you've installed all requirements.
-  2. After that you need a `reports.json` file. This file is your base file for all your reports and lies in the main directory of the software if you did not change the config.
-  3. With that said please review the file `report_data.config` in `data/config` and change the respective values to your needs.
-  4. If everything is working correctly try to run `python setup.py --build` for the console variant or `python setup.py --gui` for the GUI variant.
-  5. After a successful build there should be a `.pdf` file in your main directory.
+  2. Your report base file is `data/reports.json` (or the path configured in `data/config/export.config`).
+  3. If it does not exist yet, it will be created automatically from `data/reports.example.json` when you start the GUI.
+  4. With that said please review the file `report_data.config` in `data/config` and change the respective values to your needs.
+  5. If everything is working correctly try to run `python setup.py --build` for the console variant or `python setup.py --gui` for the GUI variant.
+  6. After a successful build there should be a `.pdf` file in your main directory.
 
 ## Information & Tips
 

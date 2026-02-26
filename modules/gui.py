@@ -47,6 +47,24 @@ def save_to_txt(data):
                     txt_file.write(f"\t{entry}\n")
                 txt_file.write("\n")
 
+def ensure_data_file(data_filepath):
+    if os.path.exists(data_filepath):
+        return
+
+    parent_dir = os.path.dirname(data_filepath)
+    if parent_dir:
+        os.makedirs(parent_dir, exist_ok=True)
+
+    example_path = os.path.join(parent_dir if parent_dir else ".", "reports.example.json")
+    if os.path.exists(example_path):
+        with open(example_path, 'r', encoding='utf-8') as example_file:
+            data = json.load(example_file)
+    else:
+        data = {}
+
+    with open(data_filepath, 'w', encoding='utf-8') as data_file:
+        json.dump(data, data_file, indent=4)
+
 class ReportApp:
     def __init__(self, root, data_filepath):
         self.root = root
@@ -204,7 +222,12 @@ class ReportApp:
 
 def run_gui():
     root = tk.Tk()
-    app = ReportApp(root, 'reports.json')
+    data_filepath = setting_load('path_report_json', 'export')
+    if not isinstance(data_filepath, str):
+        data_filepath = 'data/reports.json'
+
+    ensure_data_file(data_filepath)
+    app = ReportApp(root, data_filepath)
     root.mainloop()
 
 if __name__ == "__main__":
