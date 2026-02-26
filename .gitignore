@@ -4,7 +4,7 @@
 *.pdf
 
 # user files
-reports.json
+data/reports.json
 venv*
 
 # export
